@@ -16,16 +16,29 @@ public:
     // Default constructor
     MagicalContainer() {}
 
+
     // Copy constructor
-    MagicalContainer(const MagicalContainer& other) {
-        magicCon = other.magicCon;
-        sortMagicCon = other.sortMagicCon;
-        primeMagicCon = other.primeMagicCon;
+    MagicalContainer(const MagicalContainer& other) : magicCon(other.magicCon) , sortMagicCon(other.sortMagicCon) , primeMagicCon(other.primeMagicCon){
     }
 
     // Destructor
     ~MagicalContainer() {}
+    
+    // Move constructor
+    MagicalContainer(MagicalContainer&& other) noexcept
+    : magicCon(std::move(other.magicCon)),
+        sortMagicCon(std::move(other.sortMagicCon)),
+        primeMagicCon(std::move(other.primeMagicCon)) {}
 
+    // Move assignment operator
+    MagicalContainer& operator=(MagicalContainer&& other) noexcept {
+        if (this != &other) {
+            magicCon = std::move(other.magicCon);
+            sortMagicCon = std::move(other.sortMagicCon);
+            primeMagicCon = std::move(other.primeMagicCon);
+        }
+        return *this;
+    }
     // Assignment operator
     MagicalContainer& operator=(const MagicalContainer& other) {
         if (this != &other) {
@@ -58,7 +71,7 @@ public:
         }
     }
 
-    bool isPrime(int element)
+    static bool isPrime(int element)
     {
         if (element <= 1)
         {
@@ -67,7 +80,6 @@ public:
         
         for (int i = 2; i <= sqrt(element); i++)
         {
-            //cout << "Element modulu i " << to_string(element % i) << endl;
             if(element % i == 0)
             {
                 return false;
@@ -81,8 +93,8 @@ public:
         magicCon.erase(std::remove(magicCon.begin(), magicCon.end(), element), magicCon.end());
     }
 
-    int size() const {
-        return magicCon.size();
+    std::vector<int>::size_type size() const {
+    return magicCon.size();
     }
 
     class AscendingIterator  {
@@ -143,7 +155,7 @@ public:
 
         AscendingIterator end() 
         {
-            return AscendingIterator(this->myContainer , this->myContainer.size());
+            return AscendingIterator(this->myContainer , static_cast<int>(this->myContainer.size()));
         }
 
 	}; 
@@ -173,10 +185,9 @@ public:
             {
                 return this->container.magicCon[static_cast<size_t>(this->index/2)]; 
             }
-            else{ // cross side will be right
-                size_t disFromEnd = static_cast<size_t>(this->container.size() -1 - this->index/2);
-                return this->container.magicCon[disFromEnd];
-            }
+            // cross side will be right
+            size_t disFromEnd = static_cast<size_t>(this->container.size() -1 - static_cast<size_t>(this->index/2));
+            return this->container.magicCon[disFromEnd];
 		}
 
         // ++i;
@@ -214,7 +225,8 @@ public:
         }
 
         SideCrossIterator end() {
-        return SideCrossIterator{this->container , this->container.size()};
+        return SideCrossIterator{this->container, static_cast<int>(this->container.size())};
+
         }
 
     };
